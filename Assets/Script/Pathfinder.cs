@@ -127,6 +127,8 @@ namespace Lab2
         }
 
         // A* core implementation
+
+        
         public List<Node> FindPath(Node startNode, Node goalNode, HashSet<Node> openVisual = null, HashSet<Node> closedVisual = null)
         {
             //Reset Node costs
@@ -143,7 +145,7 @@ namespace Lab2
 
             List<Node> openSet = new List<Node>();
             HashSet<Node> closedSet = new HashSet<Node>();
-
+            /*
             startNode.fGCost = 0f;
             startNode.fHCost = HeuristicCost(startNode, goalNode);
             openSet.Add(startNode);
@@ -186,6 +188,7 @@ namespace Lab2
                     }
                 }
             }
+            */
 
             // No path found
             return null;
