@@ -25,7 +25,7 @@ namespace Lab1
         private InputAction _JumpAction;
 
         private Vector3 _MoveDirection;
-        private bool _isGrounded;
+        [SerializeField] private bool _isGrounded;
 
         private void Awake()
         {
