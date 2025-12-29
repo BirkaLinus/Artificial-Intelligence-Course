@@ -1,10 +1,27 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.Events;
 
-namespace Lab1
-{
     public class PlayerMovement : MonoBehaviour
     {
+        [System.Serializable]
+        public class BoolEvent : UnityEvent<bool>
+        {
+            public BoolEvent OnPlayerBoolChanged;
+            [SerializeField] private bool isCaught;
+
+            public void SetPlayerBool(bool value)
+            {
+                if (isCaught == value) return;
+
+                isCaught = value;
+                OnPlayerBoolChanged.Invoke(isCaught);
+            }
+        }
+
+            // =================MOVEMENT==================//
+
+
         [Header("Movement")]
         [SerializeField] private float _MovementSpeed = 6f;
         [SerializeField] private float _Acceleration = 12f;
@@ -89,4 +106,3 @@ namespace Lab1
             Gizmos.DrawLine(_GroundCheck.position, _GroundCheck.position + Vector3.down * _GroundCheckDistance);
         }
     }
-}
