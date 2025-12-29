@@ -22,6 +22,7 @@ public class NPCStateMachine : MonoBehaviour
     [SerializeField] float fAgentChaseSpeed = 6f;
 
     [Header("References")]
+    PlayerMovement playerMovement;
     Animator animator;
     NavMeshAgent agent;
     FieldOfView FOV;
@@ -31,6 +32,7 @@ public class NPCStateMachine : MonoBehaviour
 
     private void Awake()
     {
+        playerMovement = FindFirstObjectByType<PlayerMovement>();
         animator = GetComponent<Animator>();
         agent = GetComponent<NavMeshAgent>();
         FOV = GetComponent<FieldOfView>();
@@ -38,7 +40,26 @@ public class NPCStateMachine : MonoBehaviour
 
     private void Start()
     {
-        STATE state = STATE.PATROL; //The very first state at start.
+        //Subscribe to event to notify NPC when player gets caught.
+        if (playerMovement != null)
+        {
+            playerMovement.OnCaughtStateChanged.AddListener(OnPlayerCaught);
+        }
+
+        //The very first state at start.
+        STATE state = STATE.PATROL; 
+    }
+    private void OnDestroy()
+    {
+        if (playerMovement != null)
+        {
+            playerMovement.OnCaughtStateChanged.RemoveListener(OnPlayerCaught);
+        }
+    }
+
+    private void OnPlayerCaught(bool caught)
+    {
+        isBunnyCaught = caught;
     }
 
     private void Update()
@@ -97,7 +118,12 @@ public class NPCStateMachine : MonoBehaviour
 
     void Chase()
     {
-        if (!FOV.canSeePlayer || !isSmokeUp || agent.remainingDistance > fEscapeDistance)
+        if (isBunnyCaught)
+        {
+            state = STATE.CONFUSED;
+        }
+
+        if (!FOV.canSeePlayer || isSmokeUp || agent.remainingDistance > fEscapeDistance)
         {
             state = STATE.CONFUSED;
         }
@@ -106,7 +132,7 @@ public class NPCStateMachine : MonoBehaviour
         agent.speed = fAgentChaseSpeed;
         agent.SetDestination(target.position);
 
-        if (agent.remainingDistance <= fGoalReachedDistance)
+        if (agent.remainingDistance <= fGoalReachedDistance && FOV.canSeePlayer && !isSmokeUp)
         {
             state = STATE.CAUGHT;
         }

@@ -27,25 +27,26 @@ public class FieldOfView : MonoBehaviour
 
     private void FieldOfViewCheck()
     {
-        objectsInView = Physics.OverlapSphere(transform.position, viewRadius, targetMask);
-        if (objectsInView.Length != 0)
+        Vector3 directionToTarget = (target.position - transform.position).normalized;
+        float distanceToTarget = Vector3.Distance(transform.position, target.position);
+
+        // Check if target is in range
+        if (distanceToTarget <= viewRadius)
         {
-            Vector3 directionToTarget = (target.position - transform.position).normalized;
+            // Check if target is within FOV angle
             if (Vector3.Angle(transform.forward, directionToTarget) < viewAngle / 2)
             {
-                float distanceToTarget = Vector3.Distance(transform.position,
-               target.position);
-                if (Physics.Raycast(transform.position, directionToTarget, distanceToTarget,
-               obstructionMask))
-                    canSeePlayer = false;
-                else
+                // Check for obstacles
+                if (!Physics.Raycast(transform.position, directionToTarget, distanceToTarget, obstructionMask))
+                {
                     canSeePlayer = true;
+                    return;
+                }
             }
-            else
-                canSeePlayer = false;
         }
-        else if (canSeePlayer)
-            canSeePlayer = false;
+
+        // If any check fails
+        canSeePlayer = false;
     }
 
 }
