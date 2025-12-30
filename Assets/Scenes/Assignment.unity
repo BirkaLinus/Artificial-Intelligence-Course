@@ -1644,7 +1644,7 @@ MonoBehaviour:
     m_Bits: 64
   obstructionMask:
     serializedVersion: 2
-    m_Bits: 16
+    m_Bits: 144
   objectsInView: []
 --- !u!114 &875564357
 MonoBehaviour:
@@ -1673,6 +1673,7 @@ MonoBehaviour:
   fEscapeDistance: 20
   fAgentPatrolSpeed: 2
   fAgentChaseSpeed: 4
+  fAgentResetSpeed: 15
   fLookAngle: 60
   fLookTurnSpeed: 120
   state: 0
@@ -1888,7 +1889,7 @@ GameObject:
   - component: {fileID: 987897254}
   - component: {fileID: 987897253}
   - component: {fileID: 987897252}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Wall (5)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2112,7 +2113,7 @@ GameObject:
   - component: {fileID: 1081351616}
   - component: {fileID: 1081351615}
   - component: {fileID: 1081351614}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Wall (4)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2722,7 +2723,7 @@ GameObject:
   - component: {fileID: 1956231152}
   - component: {fileID: 1956231151}
   - component: {fileID: 1956231150}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Wall (6)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
