@@ -1635,7 +1635,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d0afb40d8a10cbe479cdc25e478e2031, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FieldOfView
-  viewRadius: 25
+  viewRadius: 22
   viewAngle: 129
   target: {fileID: 880356450}
   canSeePlayer: 0
@@ -1671,8 +1671,10 @@ MonoBehaviour:
   target: {fileID: 880356450}
   fGoalReachedDistance: 0.5
   fEscapeDistance: 20
-  fAgentPatrolSpeed: 3
-  fAgentChaseSpeed: 6
+  fAgentPatrolSpeed: 2
+  fAgentChaseSpeed: 4
+  fLookAngle: 60
+  fLookTurnSpeed: 120
   state: 0
 --- !u!4 &880356450 stripped
 Transform:

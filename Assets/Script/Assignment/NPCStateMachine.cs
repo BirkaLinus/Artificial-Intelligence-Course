@@ -2,6 +2,8 @@ using Lab1;
 using UnityEngine;
 using UnityEngine.AI;
 using System.Collections;
+using UnityEditor.AdaptivePerformance.Editor;
+using static Lab1.GuardPatrol;
 
 public class NPCStateMachine : MonoBehaviour
 {
@@ -20,6 +22,16 @@ public class NPCStateMachine : MonoBehaviour
     [SerializeField] float fEscapeDistance = 20f;
     [SerializeField] float fAgentPatrolSpeed = 3f;
     [SerializeField] float fAgentChaseSpeed = 6f;
+    [SerializeField] float fAgentResetSpeed = 15f;
+
+    [Header("CONFUSED STATE SETTINGS")]
+    [SerializeField] float fLookAngle = 60f; // how far left/right
+    [SerializeField] float fLookTurnSpeed = 120f; // degrees per second
+
+    Quaternion startRotation;
+    float fCurrentLookAngle;
+    int iLookDirection = 1; // 1 = right, -1 = left
+    bool isLookingAround = false;
 
     [Header("References")]
     PlayerMovement playerMovement;
@@ -47,7 +59,7 @@ public class NPCStateMachine : MonoBehaviour
         }
 
         //The very first state at start.
-        STATE state = STATE.PATROL; 
+        state = STATE.PATROL;
     }
     private void OnDestroy()
     {
@@ -69,19 +81,15 @@ public class NPCStateMachine : MonoBehaviour
             case STATE.PATROL:
                 Patrol();
                 break;
-
             case STATE.CHASE:
                 Chase();
                 break;
-
             case STATE.CAUGHT:
                 Caught();
                 break;
-
             case STATE.CONFUSED:
                 Confused();
                 break;
-
         }
     }
 
@@ -112,20 +120,20 @@ public class NPCStateMachine : MonoBehaviour
         }
 
         //Agent moves to the current waypointindex.
-        agent.SetDestination(wayPoints[iWayPointIndex].transform.position); 
-
+        agent.SetDestination(wayPoints[iWayPointIndex].transform.position);
     }
 
     void Chase()
     {
         if (isBunnyCaught)
         {
-            state = STATE.CONFUSED;
+            state = STATE.PATROL;
         }
 
         if (!FOV.canSeePlayer || isSmokeUp || agent.remainingDistance > fEscapeDistance)
         {
-            state = STATE.CONFUSED;
+            //state = STATE.CONFUSED;
+            EnterConfusedState();
         }
 
         agent.stoppingDistance = fGoalReachedDistance;
@@ -134,18 +142,101 @@ public class NPCStateMachine : MonoBehaviour
 
         if (agent.remainingDistance <= fGoalReachedDistance && FOV.canSeePlayer && !isSmokeUp)
         {
-            state = STATE.CAUGHT;
+            EnterCaughtState();
         }
+    }
+
+    void EnterCaughtState() //INBETWEEN STATE LOGICS
+    {
+        state = STATE.CAUGHT; //ACTUALLY ENTER THE STATE
+        agent.isStopped = false;
+        agent.speed = fAgentResetSpeed;
+        agent.stoppingDistance = 0f; //MAKE SURE IT INSTANTLY STAYS WHEN REACHING GOAL
+        agent.autoBraking = false;
+
+        // iWayPointIndex = GetClosestWayPointIndex();
+        agent.SetDestination(wayPoints[iWayPointIndex].position);
     }
 
     void Caught()
     {
-        agent.speed = 0f;
+        // Ignoring player completely in this state, just use it to reset to a patrol position again.
+        if (!agent.pathPending && agent.remainingDistance <= 0.05f)
+        {
+            agent.isStopped = true;
+            agent.velocity = Vector3.zero;
+            agent.ResetPath();
+
+            agent.autoBraking = true;
+            agent.stoppingDistance = fGoalReachedDistance;
+            agent.speed = fAgentPatrolSpeed;
+
+            state = STATE.PATROL;
+        }
+    }
+
+    int GetClosestWayPointIndex()
+    {
+        if (wayPoints.Length == 0) return -1;
+
+        int closestIndex = 0;
+        float closestDistance = Vector3.Distance(transform.position, wayPoints[0].position);
+
+        for (int i = 1; i < wayPoints.Length; i++)
+        {
+            float distance = Vector3.Distance(transform.position, wayPoints[i].position);
+            if (distance < closestDistance)
+            {
+                closestDistance = distance;
+                closestIndex = i;
+            }
+        }
+        return closestIndex;
+    }
+
+    void EnterConfusedState() //ALWAYS CALL THIS BEFORE ENTERING CONFUSED STATE
+    {
+        //THE PLACE WE ACTUALLY ENTER CONFUSED STATE FOR REAL.
+        state = STATE.CONFUSED;
+        agent.isStopped = true;
+        startRotation = transform.rotation;
+        fCurrentLookAngle = 0f;
+        iLookDirection = 1;
+        isLookingAround = true;
     }
 
     void Confused()
     {
+        if (FOV.canSeePlayer && agent.remainingDistance >= agent.stoppingDistance)
+        {
+            agent.isStopped = false;
+            state = STATE.CHASE;
+            return;
+        }
+
+        if (!isLookingAround) //WHEN DONE LOOKING AROUND MOVE TO THE CLOSEST WAYPOINT
+        {
+            agent.isStopped = false;
+            iWayPointIndex = GetClosestWayPointIndex();
+            agent.SetDestination(wayPoints[iWayPointIndex].position);
+            state = STATE.PATROL;
+            return;
+        }
+
+        float delta = fLookTurnSpeed * Time.deltaTime * iLookDirection;
+        fCurrentLookAngle += delta;
+        fCurrentLookAngle = Mathf.Clamp(fCurrentLookAngle, -fLookAngle, fLookAngle);
+        transform.rotation = startRotation * Quaternion.Euler(0f, fCurrentLookAngle, 0f);
+
+        if (Mathf.Abs(fCurrentLookAngle) >= fLookAngle)
+        {
+            iLookDirection *= -1;
+            if (iLookDirection == 1)
+            {
+                isLookingAround = false;
+            }
+        }
+
         //DO SOME DELAY STANDING STILL AND THEN BACK TO CLOSEST PATROL
     }
-
 }
