@@ -7,6 +7,8 @@ public class CheckPointManager : MonoBehaviour
 {
     public static CheckPointManager Instance { get; private set; }
 
+    public bool isPlayerDetectable { get; private set; } = true;
+
     [Header("Respawn Logics")]
     [SerializeField] float fRespawnTimer;
     [SerializeField] Checkpoint _lastCheckPoint;
@@ -41,16 +43,16 @@ public class CheckPointManager : MonoBehaviour
 
     private IEnumerator RespawnWithDelay(GameObject player)
     {
+        
+        //If any problem, its probably because of more objects than the player is having the "Player" tag...
         Rigidbody rb = player.GetComponent<Rigidbody>();
         Transform spawn = GetLatestSpawnPoint();
-
-        if (rb == null || spawn == null)
-            yield break;
 
         rb.linearVelocity = Vector3.zero;
         rb.angularVelocity = Vector3.zero;
         rb.isKinematic = true;
 
+        DisablePlayerDetection();
         //Moving the player
         player.transform.SetPositionAndRotation(spawn.position,Quaternion.Euler(0f, 90f, 0f));
 
@@ -60,8 +62,19 @@ public class CheckPointManager : MonoBehaviour
         yield return new WaitForSeconds(fRespawnTimer);//respawntimer for when to actually spawn.
 
         //Enables the player again.
+        EnablePlayerDetection();
         player.SetActive(true);
         rb.isKinematic = false;
+    }
+
+    public void EnablePlayerDetection()
+    {
+        isPlayerDetectable = true;
+    }
+
+    public void DisablePlayerDetection()
+    {
+        isPlayerDetectable = false;
     }
 
 

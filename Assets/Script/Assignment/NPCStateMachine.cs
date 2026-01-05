@@ -13,7 +13,6 @@ public class NPCStateMachine : MonoBehaviour
 
     [Header("Booleans")]
     [SerializeField] bool isUsingRandomWP = false;
-    [SerializeField] bool isBunnyCaught = false;
     [SerializeField] bool isSmokeUp = false;
 
     [Header("Agent Settings")]
@@ -52,30 +51,13 @@ public class NPCStateMachine : MonoBehaviour
 
     private void Start()
     {
-        //Subscribe to event to notify NPC when player gets caught.
-        if (playerMovement != null)
-        {
-            playerMovement.OnCaughtStateChanged.AddListener(OnPlayerCaught);
-        }
-
         //The very first state at start.
         state = STATE.PATROL;
-    }
-    private void OnDestroy()
-    {
-        if (playerMovement != null)
-        {
-            playerMovement.OnCaughtStateChanged.RemoveListener(OnPlayerCaught);
-        }
-    }
-
-    private void OnPlayerCaught(bool caught)
-    {
-        isBunnyCaught = caught;
     }
 
     private void Update()
     {
+
         switch (state)
         {
             case STATE.PATROL:
@@ -98,7 +80,7 @@ public class NPCStateMachine : MonoBehaviour
         //PATROLANIMATION
 
         //Checks if the player is in sight and switch state accordingly.
-        if (FOV.canSeePlayer && !isSmokeUp)
+        if (FOV.canSeePlayer && !isSmokeUp && CheckPointManager.Instance.isPlayerDetectable)
         {
             state = STATE.CHASE;
         }
@@ -132,9 +114,10 @@ public class NPCStateMachine : MonoBehaviour
 
     void Chase()
     {
-        if (isBunnyCaught)
+        if (!CheckPointManager.Instance.isPlayerDetectable)
         {
-            state = STATE.PATROL;
+            EnterCaughtState();
+            return;
         }
 
         if (!FOV.canSeePlayer || isSmokeUp || agent.remainingDistance > fEscapeDistance)
@@ -156,6 +139,7 @@ public class NPCStateMachine : MonoBehaviour
     void EnterCaughtState() //INBETWEEN STATE LOGICS
     {
         state = STATE.CAUGHT; //ACTUALLY ENTER THE STATE
+
         agent.isStopped = false;
         agent.speed = fAgentResetSpeed;
         agent.stoppingDistance = 0f; //MAKE SURE IT INSTANTLY STAYS WHEN REACHING GOAL
@@ -217,7 +201,7 @@ public class NPCStateMachine : MonoBehaviour
     void Confused()
     {
 
-        if (FOV.canSeePlayer && agent.remainingDistance >= agent.stoppingDistance)
+        if (FOV.canSeePlayer && agent.remainingDistance >= agent.stoppingDistance && CheckPointManager.Instance.isPlayerDetectable)
         {
             agent.isStopped = false;
             state = STATE.CHASE;
@@ -252,7 +236,7 @@ public class NPCStateMachine : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag("Player"))
+        if (other.CompareTag("Player") && state != STATE.CAUGHT)
         {
             EnterCaughtState();
             CheckPointManager.Instance.RespawnPlayer(other.gameObject);
