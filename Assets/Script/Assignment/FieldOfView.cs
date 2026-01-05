@@ -33,10 +33,10 @@ public class FieldOfView : MonoBehaviour
         // Check if target is in range
         if (distanceToTarget <= viewRadius)
         {
-            // Check if target is within FOV angle
+            //checks if target is in the "correct" angle
             if (Vector3.Angle(transform.forward, directionToTarget) < viewAngle / 2)
             {
-                // Check for obstacles
+                //checking if its not an obstruction in the way of the target.
                 if (!Physics.Raycast(transform.position, directionToTarget, distanceToTarget, obstructionMask))
                 {
                     canSeePlayer = true;

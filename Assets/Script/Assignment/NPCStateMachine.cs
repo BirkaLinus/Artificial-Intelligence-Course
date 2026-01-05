@@ -106,7 +106,15 @@ public class NPCStateMachine : MonoBehaviour
         agent.stoppingDistance = fGoalReachedDistance;
         agent.speed = fAgentPatrolSpeed;
 
-        //checks if it reaches the waypoint.
+        if (isUsingRandomWP)
+        {
+            if (agent.remainingDistance < agent.stoppingDistance)
+            {
+                agent.SetDestination(wayPoints[Random.Range(0, wayPoints.Length)].transform.position);
+            }
+            return;
+        }
+
         if (agent.remainingDistance < agent.stoppingDistance)
         {
             //increase waypointindex.
@@ -118,7 +126,6 @@ public class NPCStateMachine : MonoBehaviour
                 iWayPointIndex = 0;
             }
         }
-
         //Agent moves to the current waypointindex.
         agent.SetDestination(wayPoints[iWayPointIndex].transform.position);
     }
@@ -154,7 +161,7 @@ public class NPCStateMachine : MonoBehaviour
         agent.stoppingDistance = 0f; //MAKE SURE IT INSTANTLY STAYS WHEN REACHING GOAL
         agent.autoBraking = false;
 
-        // iWayPointIndex = GetClosestWayPointIndex();
+        iWayPointIndex = GetClosestWayPointIndex();
         agent.SetDestination(wayPoints[iWayPointIndex].position);
     }
 
@@ -196,6 +203,8 @@ public class NPCStateMachine : MonoBehaviour
 
     void EnterConfusedState() //ALWAYS CALL THIS BEFORE ENTERING CONFUSED STATE
     {
+        if (state == STATE.CONFUSED) return;
+
         //THE PLACE WE ACTUALLY ENTER CONFUSED STATE FOR REAL.
         state = STATE.CONFUSED;
         agent.isStopped = true;
@@ -207,6 +216,7 @@ public class NPCStateMachine : MonoBehaviour
 
     void Confused()
     {
+
         if (FOV.canSeePlayer && agent.remainingDistance >= agent.stoppingDistance)
         {
             agent.isStopped = false;
@@ -238,5 +248,14 @@ public class NPCStateMachine : MonoBehaviour
         }
 
         //DO SOME DELAY STANDING STILL AND THEN BACK TO CLOSEST PATROL
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.CompareTag("Player"))
+        {
+            EnterCaughtState();
+            CheckPointManager.Instance.RespawnPlayer(other.gameObject);
+        }
     }
 }
