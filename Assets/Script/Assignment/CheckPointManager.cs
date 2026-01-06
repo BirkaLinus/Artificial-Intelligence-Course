@@ -11,8 +11,10 @@ public class CheckPointManager : MonoBehaviour
 
     [Header("Respawn Logics")]
     [SerializeField] float fRespawnTimer;
+    public float fReadRespawnTimer => fRespawnTimer;
     [SerializeField] Checkpoint _lastCheckPoint;
 
+    public float hello;
     private void Awake()
     {
         // Singleton pattern
