@@ -25,9 +25,19 @@ public class RedLightStateMachine : MonoBehaviour
     [SerializeField] float fRedSpeed;
 
     [Header("Agent Booleans")]
+    [SerializeField] bool hasEnteredGreenState;
+    [SerializeField] bool hasEnteredYellowState;
     [SerializeField] bool hasEnteredRedState;
     [SerializeField] bool redDelayRunning;
     [SerializeField] bool idleDelayRunning;
+    [SerializeField] bool greenDelayRunning;
+    [SerializeField] bool yellowDelayRunning;
+    [SerializeField] bool isResetReseted; // 10/10 name, its a check to see if the reset has been reseted to make IDLE work again.
+
+    [Header("Materials/Renderer/Lights")]
+    [SerializeField] Material[] materials;
+    [SerializeField] Renderer npcRenderer;
+    [SerializeField] GameObject[] goLights;
 
     public enum STATE { IDLE, GREEN, YELLOW, RED, EXECUTE }
     public STATE state;
@@ -39,8 +49,35 @@ public class RedLightStateMachine : MonoBehaviour
 
     private void Start()
     {
+        //foreach (GameObject light in goLights)
+        //{
+        //    if (light != null)
+        //    {
+        //        light.SetActive(false);
+        //    }
+        //}
+
         vIdleStartPos = transform.position;
         state = STATE.IDLE;
+    }
+    void SetMaterial(int index)
+    {
+        if (materials == null || materials.Length == 0) return;
+        if (npcRenderer == null) return;
+
+        index = Mathf.Clamp(index, 0, materials.Length - 1);
+
+        npcRenderer.material = materials[index];
+    }
+
+    private void SetActiveLight(int index)
+    {
+        for (int i = 0; i < goLights.Length; i++)
+        {
+            if (goLights[i] == null) continue;
+
+            goLights[i].SetActive(i == index);
+        }
     }
 
     private void Update()
@@ -49,15 +86,23 @@ public class RedLightStateMachine : MonoBehaviour
         switch (state)
         {
             case STATE.IDLE:
+                SetMaterial(0);
+                SetActiveLight(-1);
                 Idle();
                 break;
             case STATE.GREEN:
+                SetMaterial(1);
+                SetActiveLight(0);
                 Green();
                 break;
             case STATE.YELLOW:
+                SetMaterial(2);
+                SetActiveLight(1);
                 Yellow();
                 break;
             case STATE.RED:
+                SetMaterial(3);
+                SetActiveLight(2);
                 Red();
                 break;
                 case STATE.EXECUTE:
@@ -66,8 +111,26 @@ public class RedLightStateMachine : MonoBehaviour
         }
     }
 
+    void BoolReset()
+    {
+        hasEnteredGreenState = false;
+        hasEnteredYellowState = false;
+        hasEnteredRedState = false;
+        redDelayRunning = false;
+        idleDelayRunning = false;
+        greenDelayRunning = false;
+        yellowDelayRunning = false;
+    }
+
     void Idle()
     {
+        if (!isResetReseted)
+        {
+            BoolReset();
+            StopAllCoroutines();
+            isResetReseted = true;
+        }
+
         agent.speed = fIdleResetSpeed;
         agent.SetDestination(vIdleStartPos);
         
@@ -84,6 +147,7 @@ public class RedLightStateMachine : MonoBehaviour
             if (agentPostion.x < playerPostion.x) //Needed for proper reset, probably overdone some other logics, but brain is overwhelmed so this will do for now.
             {
                 state = STATE.GREEN;
+                isResetReseted = false;
             }
         }
     }
@@ -93,11 +157,22 @@ public class RedLightStateMachine : MonoBehaviour
         agent.speed = fGreenSpeed;
         agent.SetDestination(tGoalPos.position);
 
+        if (!greenDelayRunning)
+        {
+            StartCoroutine(GreenDelay());
+        }
+
     }
 
     void Yellow()
     {
         agent.speed = fYellowSpeed;
+
+        if (!yellowDelayRunning)
+        {
+            StartCoroutine(YellowDelay());
+        }
+
     }
 
     void Red()
@@ -155,6 +230,30 @@ public class RedLightStateMachine : MonoBehaviour
         state = STATE.IDLE;
 
     }
+    IEnumerator GreenDelay()
+    {
+        greenDelayRunning = true;
+
+        float delay = Random.Range(3, 6f);
+        yield return new WaitForSeconds(delay);
+
+        hasEnteredGreenState = false;
+        greenDelayRunning = false;
+        state = STATE.YELLOW;
+    }
+
+    IEnumerator YellowDelay()
+    {
+        yellowDelayRunning = true;
+
+        float delay = 1f;
+
+        yield return new WaitForSeconds(delay);
+
+        hasEnteredYellowState = false;
+        yellowDelayRunning = false;
+        state = STATE.RED;
+    }
 
     IEnumerator RedDelay()
     {
@@ -167,5 +266,9 @@ public class RedLightStateMachine : MonoBehaviour
         redDelayRunning = false;
         state = STATE.GREEN;
     }
+
+
+
+
 
 }
