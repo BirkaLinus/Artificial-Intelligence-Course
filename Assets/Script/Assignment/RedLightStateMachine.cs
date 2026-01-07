@@ -25,15 +25,14 @@ public class RedLightStateMachine : MonoBehaviour
     [SerializeField] float fYellowSpeed;
     [SerializeField] float fRedSpeed;
 
-    [Header("Agent Booleans")]
-    [SerializeField] bool hasEnteredGreenState;
-    [SerializeField] bool hasEnteredYellowState;
+    [Header("Booleans")]
     [SerializeField] bool hasEnteredRedState;
     [SerializeField] bool redDelayRunning;
     [SerializeField] bool idleDelayRunning;
     [SerializeField] bool greenDelayRunning;
     [SerializeField] bool yellowDelayRunning;
     [SerializeField] bool isResetReseted; // 10/10 name, its a check to see if the reset has been reseted to make IDLE work again.
+    [SerializeField] bool playerHasReachedGoal;
 
     [Header("Materials/Renderer/Lights")]
     [SerializeField] Material[] materials;
@@ -114,8 +113,6 @@ public class RedLightStateMachine : MonoBehaviour
 
     void BoolReset()
     {
-        hasEnteredGreenState = false;
-        hasEnteredYellowState = false;
         hasEnteredRedState = false;
         redDelayRunning = false;
         idleDelayRunning = false;
@@ -225,9 +222,16 @@ public class RedLightStateMachine : MonoBehaviour
         //state = STATE.GREEN;
     }
 
-    void Execute()
+    void Execute() //The state when the AI has reached its goal.
     {
-        CheckPointManager.Instance.RespawnPlayer(goPlayer);
+
+        float fDestinationX = 201.3f; //The goal destination for the AI
+        playerHasReachedGoal = goPlayer.transform.position.x >= fDestinationX;
+
+        if (!playerHasReachedGoal) //Checks if the player has reached the safespot.
+        {
+            CheckPointManager.Instance.RespawnPlayer(goPlayer);
+        }
 
         state = STATE.IDLE;
     }
@@ -250,7 +254,6 @@ public class RedLightStateMachine : MonoBehaviour
         float delay = Random.Range(3, 6f);
         yield return new WaitForSeconds(delay);
 
-        hasEnteredGreenState = false;
         greenDelayRunning = false;
         state = STATE.YELLOW;
     }
@@ -263,7 +266,6 @@ public class RedLightStateMachine : MonoBehaviour
 
         yield return new WaitForSeconds(delay);
 
-        hasEnteredYellowState = false;
         yellowDelayRunning = false;
         state = STATE.RED;
     }

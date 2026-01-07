@@ -16,7 +16,6 @@ public class CheckPointManager : MonoBehaviour
 
     private void Awake()
     {
-        // Singleton pattern
         if (Instance == null)
         {
             Instance = this;
@@ -55,7 +54,7 @@ public class CheckPointManager : MonoBehaviour
 
         DisablePlayerDetection();
         //Moving the player
-        player.transform.SetPositionAndRotation(spawn.position,Quaternion.Euler(0f, 90f, 0f));
+        player.transform.SetPositionAndRotation(spawn.position,Quaternion.Euler(0f, 90f, 0f)); //have to put the correct rotation because of how I lined the "map".
 
         //Disable the player (and the camera)...
         player.SetActive(false);
