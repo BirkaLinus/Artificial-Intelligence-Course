@@ -2349,12 +2349,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::RedLightStateMachine
   goPlayer: {fileID: 512824}
   tStartPos: {fileID: 679627168}
-  tGoalPos: {fileID: 1395885487}
   vIdleStartPos: {x: 0, y: 0, z: 0}
   vRedStartPos: {x: 0, y: 0, z: 0}
-  playerPostion: {x: 0, y: 0, z: 0}
-  agentPostion: {x: 0, y: 0, z: 0}
-  fIdleResetSpeed: 24
+  vPlayerPostion: {x: 0, y: 0, z: 0}
+  vAgentPostion: {x: 0, y: 0, z: 0}
+  vGoalPos: {x: 201.3, y: 0, z: -20}
+  fIdleResetSpeed: 50
   fGreenSpeed: 4
   fYellowSpeed: 1
   fRedSpeed: 0

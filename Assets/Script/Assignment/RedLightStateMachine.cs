@@ -11,12 +11,13 @@ public class RedLightStateMachine : MonoBehaviour
 
     [SerializeField] GameObject goPlayer;
     [SerializeField] Transform tStartPos;
-    [SerializeField] Transform tGoalPos;
 
+    [Header("Vectors3s")]
     [SerializeField] Vector3 vIdleStartPos;
     [SerializeField] Vector3 vRedStartPos; //Store the value to see if the player will survive the redState.
-    [SerializeField] Vector3 playerPostion;
-    [SerializeField] Vector3 agentPostion;
+    [SerializeField] Vector3 vPlayerPostion;
+    [SerializeField] Vector3 vAgentPostion;
+    [SerializeField] Vector3 vGoalPos;
 
     [Header("Agent Stats")]
     [SerializeField] float fIdleResetSpeed;
@@ -134,8 +135,8 @@ public class RedLightStateMachine : MonoBehaviour
         agent.speed = fIdleResetSpeed;
         agent.SetDestination(vIdleStartPos);
         
-        agentPostion = gameObject.transform.position;
-        playerPostion = goPlayer.transform.position;
+        vAgentPostion = gameObject.transform.position;
+        vPlayerPostion = goPlayer.transform.position;
 
         if (idleDelayRunning) return; //prevents the agent from going straight to green.
 
@@ -144,7 +145,7 @@ public class RedLightStateMachine : MonoBehaviour
 
         if (atIdlePos && playerReady) 
         {
-            if (agentPostion.x < playerPostion.x) //Needed for proper reset, probably overdone some other logics, but brain is overwhelmed so this will do for now.
+            if (vAgentPostion.x < vPlayerPostion.x) //Needed for proper reset, probably overdone some other logics, but brain is overwhelmed so this will do for now.
             {
                 state = STATE.GREEN;
                 isResetReseted = false;
@@ -155,11 +156,21 @@ public class RedLightStateMachine : MonoBehaviour
     void Green()
     {
         agent.speed = fGreenSpeed;
-        agent.SetDestination(tGoalPos.position);
+
+        if (!agent.hasPath) //only need to give the destination once, in this case.
+        {
+            agent.SetDestination(vGoalPos);
+        }
+
 
         if (!greenDelayRunning)
         {
             StartCoroutine(GreenDelay());
+        }
+
+        if (!agent.pathPending && agent.remainingDistance <= agent.stoppingDistance)
+        {
+            state = STATE.EXECUTE;
         }
 
     }
@@ -216,7 +227,9 @@ public class RedLightStateMachine : MonoBehaviour
 
     void Execute()
     {
+        CheckPointManager.Instance.RespawnPlayer(goPlayer);
 
+        state = STATE.IDLE;
     }
 
     IEnumerator IdleDelay()
