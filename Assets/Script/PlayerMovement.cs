@@ -4,9 +4,6 @@ using UnityEngine.Events;
 
 public class PlayerMovement : MonoBehaviour
 {
-
-    // =================MOVEMENT==================//
-
     [Header("Movement")]
     [SerializeField] private float _MovementSpeed = 6f;
     [SerializeField] private float _Acceleration = 12f;
@@ -51,7 +48,6 @@ public class PlayerMovement : MonoBehaviour
         CheckGround();
         CaughtState();
         UpdateAnimations();
-        //RotateCharacter();
     }
 
     private void FixedUpdate()
@@ -65,22 +61,23 @@ public class PlayerMovement : MonoBehaviour
 
 
 
-        // Jump start (only once)
+        //put on the bool when trying to jump (maybe overkill but w/e...)
         if (_JumpAction.triggered && _isGrounded)
         {
             _animator.SetBool("IsJumping", true);
         }
-        // When grounded again
+        //changes the animator bool when grounded.
         if (_isGrounded)
         {
             _animator.SetBool("IsJumping", false);
         }
+        //if im not on the ground change the animator bool to isjumping.
         if (!_isGrounded)
         {
             _animator.SetBool("IsJumping", true);
         }
 
-        // Movement
+        //when moving/not moving
         _animator.SetBool("IsMoving", isRunning);
         _animator.SetBool("IsIdle", _isGrounded && !isRunning);
     }
@@ -126,23 +123,6 @@ public class PlayerMovement : MonoBehaviour
             rb.AddForce(velocityChange * rb.mass * _Acceleration * Time.fixedDeltaTime, ForceMode.VelocityChange);
         }
     }
-
-    //private void RotateCharacter()
-    //{
-    //    if (_MoveDirection.sqrMagnitude < 0.01f)
-    //        return;
-
-    //    // Match old script rotation exactly
-    //    Quaternion targetRotation = Quaternion.LookRotation(_MoveDirection, Vector3.up);
-
-    //    float rotationSpeed = 720f;
-
-    //    transform.rotation = Quaternion.RotateTowards(
-    //        transform.rotation,
-    //        targetRotation,
-    //        rotationSpeed * Time.deltaTime
-    //    );
-    //}
 
     private void Jump()
     {
