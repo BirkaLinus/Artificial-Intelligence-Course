@@ -30,7 +30,7 @@ public class FieldOfView : MonoBehaviour
         Vector3 directionToTarget = (target.position - transform.position).normalized;
         float distanceToTarget = Vector3.Distance(transform.position, target.position);
 
-        // Check if target is in range
+        //is the target in range?
         if (distanceToTarget <= viewRadius)
         {
             //checks if target is in the "correct" angle

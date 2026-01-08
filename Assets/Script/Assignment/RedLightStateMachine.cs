@@ -240,7 +240,7 @@ public class RedLightStateMachine : MonoBehaviour
     {
         idleDelayRunning = true;
 
-        float delay = CheckPointManager.Instance.fReadRespawnTimer;
+        float delay = CheckPointManager.Instance.fReadRespawnTimer; //Gets the "respawn timer".
         yield return new WaitForSeconds(delay + .5f);
 
         idleDelayRunning = false;
