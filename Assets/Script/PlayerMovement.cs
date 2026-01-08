@@ -18,15 +18,15 @@ public class PlayerMovement : MonoBehaviour
     [Header("References")]
     [SerializeField] private Transform _GroundCheck;
     [SerializeField] private LayerMask _GroundLayer;
+    [SerializeField] Animator _animator;
+    [SerializeField] Rigidbody rb;
 
     [Header("State/Event")]
     [SerializeField] bool _lastCaughtState;
     [SerializeField] bool isCaught;
     public UnityEvent<bool> OnCaughtStateChanged;
 
-    private Rigidbody rb;
-
-    // Input System
+    //Input System
     private PlayerInput _PlayerInput;
     private InputAction _MoveAction;
     private InputAction _JumpAction;
@@ -36,6 +36,7 @@ public class PlayerMovement : MonoBehaviour
 
     private void Awake()
     {
+        _animator = GetComponent<Animator>();
         rb = GetComponent<Rigidbody>();
         rb.freezeRotation = true;
 
@@ -49,11 +50,39 @@ public class PlayerMovement : MonoBehaviour
         ReadInput();
         CheckGround();
         CaughtState();
+        UpdateAnimations();
+        //RotateCharacter();
     }
 
     private void FixedUpdate()
     {
         MoveCharacter();
+    }
+
+    private void UpdateAnimations()
+    {
+        bool isRunning = _isGrounded && _MoveDirection.sqrMagnitude > 0.01f;
+
+
+
+        // Jump start (only once)
+        if (_JumpAction.triggered && _isGrounded)
+        {
+            _animator.SetBool("IsJumping", true);
+        }
+        // When grounded again
+        if (_isGrounded)
+        {
+            _animator.SetBool("IsJumping", false);
+        }
+        if (!_isGrounded)
+        {
+            _animator.SetBool("IsJumping", true);
+        }
+
+        // Movement
+        _animator.SetBool("IsMoving", isRunning);
+        _animator.SetBool("IsIdle", _isGrounded && !isRunning);
     }
 
     private void CaughtState()
@@ -97,6 +126,23 @@ public class PlayerMovement : MonoBehaviour
             rb.AddForce(velocityChange * rb.mass * _Acceleration * Time.fixedDeltaTime, ForceMode.VelocityChange);
         }
     }
+
+    //private void RotateCharacter()
+    //{
+    //    if (_MoveDirection.sqrMagnitude < 0.01f)
+    //        return;
+
+    //    // Match old script rotation exactly
+    //    Quaternion targetRotation = Quaternion.LookRotation(_MoveDirection, Vector3.up);
+
+    //    float rotationSpeed = 720f;
+
+    //    transform.rotation = Quaternion.RotateTowards(
+    //        transform.rotation,
+    //        targetRotation,
+    //        rotationSpeed * Time.deltaTime
+    //    );
+    //}
 
     private void Jump()
     {

@@ -78,6 +78,8 @@ public class NPCStateMachine : MonoBehaviour
     void Patrol()
     {
         //PATROLANIMATION
+        animator.SetBool("running", false);
+        animator.SetBool("attacking", false);
 
         //Checks if the player is in sight and switch state accordingly.
         if (FOV.canSeePlayer && !isSmokeUp && CheckPointManager.Instance.isPlayerDetectable)
@@ -114,6 +116,10 @@ public class NPCStateMachine : MonoBehaviour
 
     void Chase()
     {
+
+        animator.SetBool("attacking", false);
+        animator.SetBool("running", true);
+
         if (!CheckPointManager.Instance.isPlayerDetectable)
         {
             EnterCaughtState();
@@ -200,6 +206,11 @@ public class NPCStateMachine : MonoBehaviour
 
     void Confused()
     {
+        //Would have done some better animation here, the NPC is looking around itself searching for a target in FOV,
+        //the animation could for sure be better, but I just took what I had for now, just to showcase I understand
+        //the way to play around animations in a state machine.
+        animator.SetBool("running", false);
+        animator.SetBool("attacking", true);
 
         if (FOV.canSeePlayer && agent.remainingDistance >= agent.stoppingDistance && CheckPointManager.Instance.isPlayerDetectable)
         {
