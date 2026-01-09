@@ -609,6 +609,13 @@ MonoBehaviour:
   _GroundLayer:
     serializedVersion: 2
     m_Bits: 8
+  _animator: {fileID: 0}
+  rb: {fileID: 0}
+  _lastCaughtState: 0
+  isCaught: 0
+  OnCaughtStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
   _isGrounded: 0
 --- !u!54 &176662746
 Rigidbody:
@@ -2309,13 +2316,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ac4f37f30090b254da0e5acb586d645f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameAI.Lab4.GuardSensors
-  targetTag: Player
-  viewDistance: 10
-  viewAngleDegrees: 90
-  eyes: {fileID: 2099627244}
-  occlusionMask:
+  player: {fileID: 176662744}
+  viewRange: 10
+  occluders:
     serializedVersion: 2
     m_Bits: 4294967295
+  useLineOfSightRaycast: 1
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

@@ -14,8 +14,7 @@ public class GuardSensors : MonoBehaviour
         SeesPlayer = false;
         if (player == null) return;
 
-        float dist = Vector3.Distance(transform.position,
-player.position);
+        float dist = Vector3.Distance(transform.position, player.position);
         if (dist > viewRange) return;
 
         if (!useLineOfSightRaycast)
@@ -31,8 +30,7 @@ player.position);
 
         if (len < 0.001f) { SeesPlayer = true; return; }
 
-        if (Physics.Raycast(origin, dir / len, out RaycastHit hit,
-len, occluders))
+        if (Physics.Raycast(origin, dir / len, out RaycastHit hit, len, occluders))
         {
             // Sees player only if the first thing hit is the player 
             if (hit.transform == player) SeesPlayer = true;

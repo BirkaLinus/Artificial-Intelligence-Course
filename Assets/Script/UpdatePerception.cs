@@ -44,17 +44,13 @@ namespace GameAI.Lab4
             if (sensors == null)
             {
                 // No sensors attached -> treat as "can't see anything"
-            if (HasLineOfSight != null) HasLineOfSight.Value =
-            false;
-                if (TimeSinceLastSeen != null)
-                    TimeSinceLastSeen.Value += Time.deltaTime;
-                return Status.Success;
+                if (HasLineOfSight != null) HasLineOfSight.Value = false;
+
+                if (TimeSinceLastSeen != null) TimeSinceLastSeen.Value += Time.deltaTime;return Status.Success;
             }
-            bool sensed = sensors.TrySenseTarget(
-            out GameObject sensedTarget,
-            out Vector3 sensedPos,
-            out bool hasLOS
-            );
+
+            bool sensed = sensors.TrySenseTarget(out GameObject sensedTarget, out Vector3 sensedPos, out bool hasLOS);
+
             if (sensed && hasLOS)
             {
                 if (Target != null) Target.Value = sensedTarget;
@@ -78,3 +74,4 @@ namespace GameAI.Lab4
         }
     }
 }
+
