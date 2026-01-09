@@ -1183,9 +1183,6 @@ PrefabInstance:
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 2515229217187522818, guid: 5439607eda38955438f15faa484ed4c1, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 928795779}
-    - targetCorrespondingSourceObject: {fileID: 2515229217187522818, guid: 5439607eda38955438f15faa484ed4c1, type: 3}
-      insertIndex: -1
       addedObject: {fileID: 928795781}
     - targetCorrespondingSourceObject: {fileID: 2515229217187522818, guid: 5439607eda38955438f15faa484ed4c1, type: 3}
       insertIndex: -1
@@ -1196,25 +1193,6 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 2515229217187522818, guid: 5439607eda38955438f15faa484ed4c1, type: 3}
   m_PrefabInstance: {fileID: 928795777}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &928795779
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 928795778}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ac4f37f30090b254da0e5acb586d645f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GameAI.Lab4.GuardSensors
-  targetTag: Player
-  viewDistance: 10
-  viewAngleDegrees: 90
-  eyes: {fileID: 0}
-  occlusionMask:
-    serializedVersion: 2
-    m_Bits: 4294967295
 --- !u!195 &928795780
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -1249,13 +1227,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ac4f37f30090b254da0e5acb586d645f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameAI.Lab4.GuardSensors
-  targetTag: Player
-  viewDistance: 10
-  viewAngleDegrees: 90
-  eyes: {fileID: 0}
-  occlusionMask:
+  player: {fileID: 0}
+  viewRange: 10
+  occluders:
     serializedVersion: 2
     m_Bits: 4294967295
+  useLineOfSightRaycast: 1
 --- !u!1 &966033949
 GameObject:
   m_ObjectHideFlags: 0
