@@ -22,13 +22,13 @@ namespace GameAI.Lab4
         [SerializeReference]
         public BlackboardVariable<float>TimeSinceLastSeen;
 
-        protected override Node.Status OnUpdate()
+        protected override Unity.Behavior.Node.Status OnUpdate()
         {
             if (Target != null) Target.Value = null;
             if (HasLineOfSight != null) HasLineOfSight.Value =false;
             if (TimeSinceLastSeen != null) TimeSinceLastSeen.Value =9999f;
 
-            return Node.Status.Success;
+            return Unity.Behavior.Node.Status.Success;
         }
     }
 }

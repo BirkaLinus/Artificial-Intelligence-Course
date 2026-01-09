@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Runtime.InteropServices.WindowsRuntime;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.AI;
@@ -25,6 +26,9 @@ public class RedLightStateMachine : MonoBehaviour
     [SerializeField] float fYellowSpeed;
     [SerializeField] float fRedSpeed;
 
+    [Header("Goal")]
+    [SerializeField] float fDestinationX = 201.3f; //The goal destination for the AI and player.
+
     [Header("Booleans")]
     [SerializeField] bool hasEnteredRedState;
     [SerializeField] bool redDelayRunning;
@@ -33,6 +37,9 @@ public class RedLightStateMachine : MonoBehaviour
     [SerializeField] bool yellowDelayRunning;
     [SerializeField] bool isResetReseted; // 10/10 name, its a check to see if the reset has been reseted to make IDLE work again.
     [SerializeField] bool playerHasReachedGoal;
+    [SerializeField] bool atIdlePos;
+    [SerializeField] bool playerReady;
+    [SerializeField] bool GetThePartyStarted = false;
 
     [Header("Materials/Renderer/Lights")]
     [SerializeField] Material[] materials;
@@ -56,6 +63,7 @@ public class RedLightStateMachine : MonoBehaviour
         //        light.SetActive(false);
         //    }
         //}
+
 
         vIdleStartPos = transform.position;
         state = STATE.IDLE;
@@ -82,6 +90,12 @@ public class RedLightStateMachine : MonoBehaviour
 
     private void Update()
     {
+
+        playerHasReachedGoal = goPlayer.transform.position.x >= fDestinationX; //Sets the final destination for AI and player.
+        if (playerHasReachedGoal)
+        {
+            state = STATE.EXECUTE;
+        }
 
         switch (state)
         {
@@ -122,6 +136,7 @@ public class RedLightStateMachine : MonoBehaviour
 
     void Idle()
     {
+
         if (!isResetReseted)
         {
             BoolReset();
@@ -137,12 +152,12 @@ public class RedLightStateMachine : MonoBehaviour
 
         if (idleDelayRunning) return; //prevents the agent from going straight to green.
 
-        bool atIdlePos = Vector3.Distance(transform.position, vIdleStartPos) < 0.1f;
-        bool playerReady = goPlayer.transform.position.x > tStartPos.position.x;
+        atIdlePos = Vector3.Distance(transform.position, vIdleStartPos) < 0.1f;
+        playerReady = goPlayer.transform.position.x < tStartPos.position.x;
 
-        if (atIdlePos && playerReady) 
+        if (atIdlePos && !playerReady)
         {
-            if (vAgentPostion.x < vPlayerPostion.x) //Needed for proper reset, probably overdone some other logics, but brain is overwhelmed so this will do for now.
+            if (vAgentPostion.x <= vPlayerPostion.x) //Needed for proper reset, probably overdone some other logics, but brain is overwhelmed so this will do for now.
             {
                 state = STATE.GREEN;
                 isResetReseted = false;
@@ -174,6 +189,8 @@ public class RedLightStateMachine : MonoBehaviour
 
     void Yellow()
     {
+
+        vPlayerPostion = goPlayer.transform.position;
         agent.speed = fYellowSpeed;
 
         if (!yellowDelayRunning)
@@ -224,16 +241,35 @@ public class RedLightStateMachine : MonoBehaviour
 
     void Execute() //The state when the AI has reached its goal.
     {
-
-        float fDestinationX = 201.3f; //The goal destination for the AI
-        playerHasReachedGoal = goPlayer.transform.position.x >= fDestinationX;
-
         if (!playerHasReachedGoal) //Checks if the player has reached the safespot.
         {
             CheckPointManager.Instance.RespawnPlayer(goPlayer);
+            state = STATE.IDLE;
+        }
+        else
+        {
+            agent.speed = 0;
+            //Destroyed state
+            state = STATE.EXECUTE;
+            if (!GetThePartyStarted)
+            {
+                StopAllCoroutines();
+                GetThePartyStarted = true;
+                StartCoroutine(Party());
+            }
         }
 
-        state = STATE.IDLE;
+    }
+
+    IEnumerator Party()
+    {
+        SetActiveLight(0);
+        yield return new WaitForSeconds(.2f);
+        SetActiveLight(1);
+        yield return new WaitForSeconds(.2f);
+        SetActiveLight(2);
+        yield return new WaitForSeconds(.2f);
+        StartCoroutine(Party());
     }
 
     IEnumerator IdleDelay()
