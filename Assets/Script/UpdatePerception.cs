@@ -3,6 +3,8 @@ using Unity.Behavior;
 using Unity.Properties;
 using UnityEngine;
 using UnityEngine.UIElements.Experimental;
+
+
 namespace GameAI.Lab4
 {
 /// <summary>
@@ -19,23 +21,17 @@ namespace GameAI.Lab4
     public class UpdatePerception : Unity.Behavior.Action
     {
         [SerializeReference]
-        public BlackboardVariable<GameObject>
-        Target;
+        public BlackboardVariable<GameObject> Target;
         [SerializeReference]
-        public BlackboardVariable<bool>
-        HasLineOfSight;
+        public BlackboardVariable<bool> HasLineOfSight;
         [SerializeReference]
-        public BlackboardVariable<Vector3>
-        LastKnownPosition;
+        public BlackboardVariable<Vector3> LastKnownPosition;
         [SerializeReference]
-        public BlackboardVariable<float>
-        TimeSinceLastSeen;
+        public BlackboardVariable<float> TimeSinceLastSeen;
         protected override Status OnStart()
         {
             // Ensure we have sane defaults.
-            if (TimeSinceLastSeen != null && TimeSinceLastSeen.Value
-            < 0f)
-                TimeSinceLastSeen.Value = 9999f;
+            if (TimeSinceLastSeen != null && TimeSinceLastSeen.Value< 0f) TimeSinceLastSeen.Value = 9999f;
             return Status.Success;
         }
         protected override Status OnUpdate()
