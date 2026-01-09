@@ -101,6 +101,8 @@ public class NPCStateMachine : MonoBehaviour
 
         if (agent.remainingDistance < agent.stoppingDistance)
         {
+
+            //Could do some coroutine pausing the NPC for a while when reached the waypoint, **IF I HAVE TIME**.
             //increase waypointindex.
             iWayPointIndex++;
 
